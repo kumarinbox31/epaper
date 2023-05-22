@@ -7,30 +7,36 @@ if (isset($_POST)) {
     $folder = date('Y-m', strtotime($date));
     $outputFolder = 'media/' . $folder;
 
-    // upload pdf file 
-    $pdfFile = $_POST['pdfFile'];
-    $tempname = tempnam(sys_get_temp_dir(), $pdfFile);
-    $info = pathinfo($pdfFile);
-    $ext = $info['extension']; // get the extension of the file
-    $newname = "pdf_" . time() . "." . $ext;
-    $target = $outputFolder . '/' . $newname;
-    $res = copy($tempname, $target);
+    // check epaper avalaible or not in given  date
+    $chk = $con->query("SELECT * FROM `epapers` WHERE `date` = '$date'");
+    if (!$chk->num_rows) {
+        // upload pdf file 
+        $pdfFile = $_POST['pdfFile'];
+        $tempname = tempnam(sys_get_temp_dir(), $pdfFile);
+        $info = pathinfo($pdfFile);
+        $ext = $info['extension']; // get the extension of the file
+        $newname = "pdf_" . time() . "." . $ext;
+        $target = $outputFolder . '/' . $newname;
+        $res = copy($tempname, $target);
 
-    // insert pdf file data in epapers table
-    $ins = $con->query("INSERT INTO `epapers`(`path`, `date`) VALUES ('$target','$date')");
-    $epaper_id = $con->insert_id;
+        // insert pdf file data in epapers table
+        $ins = $con->query("INSERT INTO `epapers`(`path`, `date`) VALUES ('$target','$date')");
+        $epaper_id = $con->insert_id;
 
-    // upload pdf images
-    $data = (array) json_decode($_POST['data']);
-    if (count($data)) {
-        foreach ($data as $key => $image) {
-            $image_path = saveFile($image, $key + 1, $outputFolder);
-            $page = $key + 1;
-            // insert epaper images
-            $con->query("INSERT INTO  `epaper_images` (`epaper_id`,`image`,`page`) VALUES ('$epaper_id', '$image_path', '$page')");
+        // upload pdf images
+        $data = (array) json_decode($_POST['data']);
+        if (count($data)) {
+            foreach ($data as $key => $image) {
+                $image_path = saveFile($image, $key + 1, $outputFolder);
+                $page = $key + 1;
+                // insert epaper images
+                $con->query("INSERT INTO  `epaper_images` (`epaper_id`,`image`,`page`) VALUES ('$epaper_id', '$image_path', '$page')");
+            }
+            echo 1;
         }
+    } else {
+        echo 2;
     }
-    echo 1;
 }
 function saveFile($base64Data, $pageNum, $outputFolder)
 {

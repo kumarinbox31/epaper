@@ -70,7 +70,13 @@ $('#extractImages').click(function() {
         dataType:'json',
         data:{data:json,date:date,pdfFile:pdfFile},
         success:function (res) {
-          
+          if(res ==1){
+            alert('Process Complete.');
+            window.location.reload();
+          }   
+          if(res == 2){
+            alert('Date already exists. Please change date.');
+          }
         }
       });
     })
