@@ -1,0 +1,40 @@
+header {
+    border: 2px solid red;
+    height: 8rem;
+    width: auto;
+}
+
+header>.logo {
+    height: 60%;
+    border: 2px solid brown;
+}
+
+header.navbar {
+    height: 40%;
+    border: 2px solid navy;
+}
+
+nav.navbar {
+    height: 3rem;
+    margin-top: -8px;
+}
+
+nav {
+    width: 100%;
+}
+
+main {
+    border: 2px solid green;
+    min-height: 100vh;
+}
+
+section.sidebar {
+    border: 2px solid yellow;
+    height: 40rem;
+    overflow: scroll;
+}
+
+section.main {
+    border: 2px solid blue;
+    min-height: 100vh;
+}
