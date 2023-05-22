@@ -13,6 +13,8 @@ include 'get_data.php';
     <link rel="stylesheet" href="style.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.css" integrity="sha512-C4k/QrN4udgZnXStNFS5osxdhVECWyhMsK1pnlk+LkC7yJGCqoYxW4mH3/ZXLweODyzolwdWSqmmadudSHMRLA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
 </head>
 
 <body>
@@ -83,7 +85,7 @@ include 'get_data.php';
                             <a href="<?php echo $pdf; ?>" class="btn btn-info">Pdf</a>
                         </div>
                         <div class="col-md-2">
-                            <a class="btn btn-primary">Clip</a>
+                            <a class="btn btn-primary" id="clipBtn">Clip</a>
                             <a class="btn btn-dark">Archive</a>
                         </div>
                     </div>
@@ -118,7 +120,10 @@ include 'get_data.php';
                     - Page
                     <?php echo $activePage;?>
                 </div>
-                <img src="<?php echo  $image ?>">
+                <div class="cropper-container">
+                    <img src="<?php echo  $image ?>" id="image">
+                </div>
+                
             </section>
         </div>
     </main>
@@ -130,7 +135,9 @@ include 'get_data.php';
         crossorigin="anonymous"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js" integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js" integrity="sha512-6lplKUSl86rUVprDIjiW8DuOniNX8UDoRATqZSds/7t6zCQZfaCe3e5zcGaQwxa8Kpn5RTM9Fvl3X2lLV4grPQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="script.js"></script>
+    <script src="cropper.js"></script>
 </body>
 
 </html>
