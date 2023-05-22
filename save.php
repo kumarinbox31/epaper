@@ -7,15 +7,14 @@ $outputFolder = 'media/'.$folder;
 
 // upload pdf file 
 $pdfFile = $_POST['pdfFile'];
+$tempname = tempnam(sys_get_temp_dir(),$pdfFile);
 $info = pathinfo($pdfFile);
 $ext = $info['extension']; // get the extension of the file
 $newname = "pdf_".time().".".$ext; 
 $target = $outputFolder.'/'.$newname;
-$res = move_uploaded_file( tempnam(sys_get_temp_dir(),$pdfFile), $target);
-if(!$res){
-    die($target);
-}
-print_r($pdfFile);exit;
+$res = copy($tempname,$target);
+
+// insert pdf file data in epapers table
 
 
 
