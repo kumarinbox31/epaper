@@ -1,6 +1,7 @@
 <?php
 include 'conn.php';
 include 'get_data.php';
+header("Cache-Control: no-cache, must-revalidate");
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -13,9 +14,14 @@ include 'get_data.php';
     <link rel="stylesheet" href="style.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
-    
+
     <!-- cropper -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.css" integrity="sha512-C4k/QrN4udgZnXStNFS5osxdhVECWyhMsK1pnlk+LkC7yJGCqoYxW4mH3/ZXLweODyzolwdWSqmmadudSHMRLA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.css"
+        integrity="sha512-C4k/QrN4udgZnXStNFS5osxdhVECWyhMsK1pnlk+LkC7yJGCqoYxW4mH3/ZXLweODyzolwdWSqmmadudSHMRLA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- calender -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css" />
+
 </head>
 
 <body>
@@ -41,7 +47,7 @@ include 'get_data.php';
                                     while ($page = $pages->fetch_assoc()) {
                                         $page_id = $page['page'];
                                         $url = 'view.php?date=' . $date . '&view=' . $epaper_id . '&page=' . $page_id;
-                                        $selected = $activePage == $page_id ?  'selected' : '';
+                                        $selected = $activePage == $page_id ? 'selected' : '';
                                         echo "<option $selected data-url='$url' value='$page_id'>Page $page_id</option>";
                                     }
                                 }
@@ -52,33 +58,33 @@ include 'get_data.php';
                             <nav aria-label="" style="margin-top:1rem;margin-left:1rem;">
                                 <ul class="pagination">
                                     <?php
-                                        $pages = $con->query("SELECT * FROM `epaper_images` where `epaper_id` = '$epaper_id'");
-                                        $page_count = $pages->num_rows;
-                                        
-                                        if($activePage > 1 && $activePage > 0){
-                                            $page_id = $activePage-1;
-                                            $url = 'view.php?date=' . $date . '&view=' . $epaper_id . '&page=' . $page_id;
-                                            echo '<li class="page-item">
-                                                    <a class="page-link" href="'.$url.'">Previous</a>
+                                    $pages = $con->query("SELECT * FROM `epaper_images` where `epaper_id` = '$epaper_id'");
+                                    $page_count = $pages->num_rows;
+
+                                    if ($activePage > 1 && $activePage > 0) {
+                                        $page_id = $activePage - 1;
+                                        $url = 'view.php?date=' . $date . '&view=' . $epaper_id . '&page=' . $page_id;
+                                        echo '<li class="page-item">
+                                                    <a class="page-link" href="' . $url . '">Previous</a>
                                                 </li>
                                                 ';
-                                        }
-                                        while($page = $pages->fetch_assoc()){
-                                            $page_id = $page['page'];
-                                            $url = 'view.php?date=' . $date . '&view=' . $epaper_id . '&page=' . $page_id;
-                                            $active = $activePage == $page_id ?  'active' : '';
-                                            echo '<li class="page-item '.$active.'"><a class="page-link" href="'.$url.'">'.$page_id.'</a></li>';
-                                        }
-                                        if($activePage < $page_count){
-                                            $page_id = $activePage+1;
-                                            $url = 'view.php?date=' . $date . '&view=' . $epaper_id . '&page=' . $page_id;
+                                    }
+                                    while ($page = $pages->fetch_assoc()) {
+                                        $page_id = $page['page'];
+                                        $url = 'view.php?date=' . $date . '&view=' . $epaper_id . '&page=' . $page_id;
+                                        $active = $activePage == $page_id ? 'active' : '';
+                                        echo '<li class="page-item ' . $active . '"><a class="page-link" href="' . $url . '">' . $page_id . '</a></li>';
+                                    }
+                                    if ($activePage < $page_count) {
+                                        $page_id = $activePage + 1;
+                                        $url = 'view.php?date=' . $date . '&view=' . $epaper_id . '&page=' . $page_id;
                                         echo '<li class="page-item">
-                                                <a class="page-link" href="'.$url.'">Next</a>
+                                                <a class="page-link" href="' . $url . '">Next</a>
                                             </li>';
-                                        }
-                                        
+                                    }
+
                                     ?>
-                                    
+
                                 </ul>
                             </nav>
                         </div>
@@ -87,7 +93,8 @@ include 'get_data.php';
                         </div>
                         <div class="col-md-2">
                             <a class="btn btn-primary" id="clipBtn">Clip</a>
-                            <a class="btn btn-dark">Archive</a>
+                            <a id="archive" data-bs-toggle="calendar" class="btn btn-dark">Archive</a>
+                            <div id="calender"></div>
                         </div>
                     </div>
                 </div>
@@ -104,12 +111,14 @@ include 'get_data.php';
                         $page_id = $p['page'];
                         $url = 'view.php?date=' . $date . '&view=' . $epaper_id . '&page=' . $page_id;
                         ?>
-                        <div style="cursor:pointer;" class="card" onclick="window.location.href='<?php echo $url;?>'">
+                        <div style="cursor:pointer;" class="card" onclick="window.location.href='<?php echo $url; ?>'">
                             <div class="card-body">
                                 <img src="<?php echo $p['image']; ?>" style="height:10rem;width:100%;" alt="not found">
                             </div>
                             <div class="card-footer">
-                                <p class="text-center">Page <?php echo $page_id;?></p>
+                                <p class="text-center">Page
+                                    <?php echo $page_id; ?>
+                                </p>
                             </div>
                         </div>
                     <?php }
@@ -117,14 +126,14 @@ include 'get_data.php';
             </section>
             <section class="main col-md-10">
                 <div class="alert alert-primary">
-                    <?php echo date('d M Y',strtotime($date)); ?>
+                    <?php echo date('d M Y', strtotime($date)); ?>
                     - Page
-                    <?php echo $activePage;?>
+                    <?php echo $activePage; ?>
                 </div>
                 <div class="cropper-container">
-                    <img src="<?php echo  $image ?>" id="image">
+                    <img src="<?php echo $image ?>" id="image">
                 </div>
-                
+
             </section>
         </div>
     </main>
@@ -135,10 +144,19 @@ include 'get_data.php';
         integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
         crossorigin="anonymous"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js" integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js" integrity="sha512-6lplKUSl86rUVprDIjiW8DuOniNX8UDoRATqZSds/7t6zCQZfaCe3e5zcGaQwxa8Kpn5RTM9Fvl3X2lLV4grPQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js"
+        integrity="sha512-3gJwYpMe3QewGELv8k/BX9vcqhryRdzRMxVfq6ngyWXwo03GFEzjsUm8Q7RZcHPHksttq7/GFoxjCVUjkjvPdw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"
+        integrity="sha512-6lplKUSl86rUVprDIjiW8DuOniNX8UDoRATqZSds/7t6zCQZfaCe3e5zcGaQwxa8Kpn5RTM9Fvl3X2lLV4grPQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="script.js"></script>
-    <script src="cropper.js"></script>
+    <!-- <script src="cropper.js"></script> -->
+
+    <!-- calender js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
+    <script src="calender.js"></script>
 </body>
 
 </html>

@@ -1,5 +1,5 @@
 <?php
-$date = date('Y-m-d');
+$date = date('Y-m-d',strtotime('2023-05-22'));
 $activePage = 1;
 if (isset($_GET['date'])) {
     $get = $_GET;
@@ -14,6 +14,7 @@ if ($epaper->num_rows) {
     $pdf = $row->path;
 } else {
     return false;
+    die('noting found');
 }
 
 $image = $con->query("SELECT * from epaper_images where epaper_id = '$epaper_id' and page = '$activePage'");
@@ -22,4 +23,5 @@ if ($image->num_rows) {
     $image = $image->image;
 } else {
     return false;
+    die('nothing found');
 }
